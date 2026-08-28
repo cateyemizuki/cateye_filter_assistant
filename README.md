@@ -29,7 +29,7 @@
 ```toml
 [plugin]                     # 插件总开关与版本号（独立一项分类）
 enabled = true               # 是否启用插件（关闭后不过滤任何请求）
-config_version = "1.0.0"     # 配置版本（与插件版本同步，UI 中隐藏）
+config_version = "1.0.1"     # 配置版本（与插件版本同步，UI 中隐藏）
 
 [filter]                     # 过滤设置
 strip_assistant_messages = true   # 过滤纯文本 assistant 消息（默认开）
@@ -85,6 +85,7 @@ Planner 构造请求体（items: Context Item 快照列表）
 
 | 版本 | 变更 |
 |------|------|
+| 1.0.1 | `plugin_type` 改为 `extension`；description 明确为 DeepSeek V4 flash；新增 `test/` 单元测试 |
 | 1.0.0 | 初始版本：`maisaka.planner.before_request` Hook 过滤 assistant 纯文本消息与推理内容；配置开关 `strip_assistant_messages` / `strip_reasoning_messages` |
 
 ## 文件结构
