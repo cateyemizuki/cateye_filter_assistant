@@ -3,7 +3,7 @@
   "id": "github.cateye.filter-assistant",
   "version": "1.0.0",
   "name": "不要只说不干",
-  "description": "修复 DeepSeek V4 系列模型（含 Command Code、阿里云百炼）Planner 工具调用失败问题（详见 https://github.com/Mai-with-u/MaiBot/issues/2017 ）：在 Planner 构造发送给 LLM 的请求体之前，自动过滤掉 messages/Context Items 中所有 role 为 assistant 的纯文本消息（仅保留 system、user、tool 角色），消除「不调用工具」坏示例对模型的污染。支持配置开关 strip_assistant_messages（默认开启）与 strip_reasoning_messages（默认关闭），仅影响临时请求体，不回写聊天历史。如果你发现 planner 决策声明回复而没有任何 reply 的调用，可以尝试使用该插件解决。",
+  "description": "修复 DeepSeek V4 flash（测试时使用的提供方含 Command Code、阿里云百炼）Planner 工具调用失败问题（详见 https://github.com/Mai-with-u/MaiBot/issues/2017 ）：在 Planner 构造发送给 LLM 的请求体之前，自动过滤掉 messages/Context Items 中所有 role 为 assistant 的纯文本消息（仅保留 system、user、tool 角色），消除「不调用工具」坏示例对模型的污染。支持配置开关 strip_assistant_messages（默认开启）与 strip_reasoning_messages（默认关闭），仅影响临时请求体，不回写聊天历史。如果你发现 planner 决策声明回复而没有任何 reply 的调用，可以尝试使用该插件解决。",
   "author": {
     "name": "cateye",
     "url": "https://github.com/cateyemizuki"
