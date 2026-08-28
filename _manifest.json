@@ -24,7 +24,7 @@
     "max_version": "2.99.99"
   },
   "dependencies": [],
-  "plugin_type": "tool",
+  "plugin_type": "extension",
   "display": {
     "icon": {
       "type": "lucide",
