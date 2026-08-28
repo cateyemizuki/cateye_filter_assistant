@@ -33,7 +33,7 @@ from .filter_core import strip_assistant_items
 
 # 配置版本（config_version）：与 _manifest.json 的 version 保持同步。
 # config_version 用于检查配置文件（config.toml）是否需要更新。
-SUPPORTED_CONFIG_VERSION = "1.0.0"
+SUPPORTED_CONFIG_VERSION = "1.0.1"
 
 # 对应 maiBot Context Item 载荷的 schema 版本键（与 Host 传入一致，回传时保留原值）
 # 该值来自 src/llm_models/payload_content/context_item.py 的 CONTEXT_ITEM_SCHEMA_VERSION，
