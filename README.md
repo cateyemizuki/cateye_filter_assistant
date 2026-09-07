@@ -1,5 +1,7 @@
 # 不要只说不干（MaiBot 插件）
 
+> **⚠️ 使用前注意**：使用该插件建议保持默认配置项；决策模型应至少开启**最低思考强度**，让 reasoning 充当被过滤的 assistant 角色；否则可能导致决策模型行为异常。
+
 在 **Planner** 构造发送给 LLM 的请求体之前，自动过滤掉 `messages` 数组中所有 **`role` 为 `assistant`** 的消息（仅保留 `system`、`user`、`tool` 角色的消息），修复 DeepSeek V4 系列模型（Command Code、阿里云百炼）**工具调用失败**的问题。
 
 > 相关讨论见 [MaiBot issue #2017](https://github.com/Mai-with-u/MaiBot/issues/2017)。
