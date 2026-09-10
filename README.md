@@ -106,12 +106,9 @@ cateye_filter_assistant/
 
 本插件为标准 **MaiBot SDK 插件**（基于 `maibot-plugin-sdk`）。
 
-- **`filter_core.py`**：核心逻辑（Item 角色识别、过滤规则）**不依赖 SDK**，可离线单元测试；
+- **`filter_core.py`**：核心逻辑（Item 角色识别、过滤规则）**不依赖 SDK**；
 - **`plugin.py`**：SDK 插件入口，依赖 `maibot_sdk`（由 MaiBot Runner 提供），本地开发需先安装 SDK 才能导入。
 
 ```bash
 pip install maibot-plugin-sdk   # 本地开发依赖
-
-python test/test_filter_assistant_core.py    # 核心逻辑单元测试（不依赖 SDK）
-python test/test_filter_assistant_plugin.py  # 插件类集成测试（stub SDK，无需真实 SDK 环境）
 ```

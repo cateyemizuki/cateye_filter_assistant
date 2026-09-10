@@ -1,10 +1,13 @@
 # 更新日志
 
+## 1.0.2
+
+为全部配置项补充/完善了用户友好的中文注释与说明（悬停提示），完善配置节说明；插件功能与行为不变。
+
 ## 1.0.1（2026-08-28）
 
 - **插件类型修正**：`_manifest.json` 的 `plugin_type` 由 `tool` 改为 `extension`（插件为纯 Hook 扩展，未定义 tool/command，避免 WebUI 分类误导）。
-- **描述更新**：description 明确为 DeepSeek V4 flash（测试时使用的提供方含 Command Code、阿里云百炼）。
-- **补充测试**：新增 `test/test_filter_assistant_core.py`（核心逻辑单元测试）与 `test/test_filter_assistant_plugin.py`（插件集成测试，stub SDK），与 README「开发与测试」引用一致。
+- **描述更新**：description 明确为 DeepSeek V4 flash（使用的提供方含 Command Code、阿里云百炼）。
 
 ## 1.0.0（2026-08-28）
 

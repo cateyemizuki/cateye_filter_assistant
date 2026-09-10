@@ -33,7 +33,7 @@ from .filter_core import strip_assistant_items
 
 # 配置版本（config_version）：与 _manifest.json 的 version 保持同步。
 # config_version 用于检查配置文件（config.toml）是否需要更新。
-SUPPORTED_CONFIG_VERSION = "1.0.1"
+SUPPORTED_CONFIG_VERSION = "1.0.2"
 
 # 对应 maiBot Context Item 载荷的 schema 版本键（与 Host 传入一致，回传时保留原值）
 # 该值来自 src/llm_models/payload_content/context_item.py 的 CONTEXT_ITEM_SCHEMA_VERSION，
@@ -47,7 +47,14 @@ class PluginSectionConfig(PluginConfigBase):
     __ui_icon__ = "package"
     __ui_order__ = 0
 
-    enabled: bool = Field(default=True, description="是否启用插件（关闭后不过滤任何请求）")
+    enabled: bool = Field(
+        default=True,
+        description="是否启用插件（关闭后不过滤任何请求）",
+        json_schema_extra={
+            "label": "启用插件",
+            "hint": "插件总开关",
+        },
+    )
     config_version: str = Field(
         default=SUPPORTED_CONFIG_VERSION,
         description="配置版本（与插件版本同步，用于检查配置文件是否需要更新）",
@@ -55,6 +62,7 @@ class PluginSectionConfig(PluginConfigBase):
             "disabled": True,
             "hidden": True,
             "label": "配置版本",
+            "hint": "配置版本，勿改",
         },
     )
 
@@ -69,10 +77,18 @@ class FilterSectionConfig(PluginConfigBase):
     strip_assistant_messages: bool = Field(
         default=True,
         description="过滤纯文本 assistant 消息（含「不调用工具」坏示例；仅影响临时请求体，不回写历史）",
+        json_schema_extra={
+            "label": "过滤 assistant 纯文本消息",
+            "hint": "过滤助手纯文本消息",
+        },
     )
     strip_reasoning_messages: bool = Field(
         default=False,
         description="同时过滤推理内容（ReasoningItem，assistant 思考文本；默认关闭）",
+        json_schema_extra={
+            "label": "过滤推理内容",
+            "hint": "也过滤推理内容",
+        },
     )
 
 
