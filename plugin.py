@@ -33,7 +33,22 @@ from .filter_core import strip_assistant_items
 
 # 配置版本（config_version）：与 _manifest.json 的 version 保持同步。
 # config_version 用于检查配置文件（config.toml）是否需要更新。
-SUPPORTED_CONFIG_VERSION = "1.0.2"
+SUPPORTED_CONFIG_VERSION = "1.0.4"
+
+
+def _ui_i18n(en_label: str, en_hint: str = "") -> Dict[str, Any]:
+    """字段级英文翻译（并入 json_schema_extra；WebUI 按 i18n[locale]['label'/'hint'] 取用）。
+
+    说明：本插件的 en 语言资源为**刻意内联**设计——manifest 声明
+    ``i18n.supported_locales: ["zh-CN", "en"]`` 但不提供 ``locales_path``
+    独立语言文件，英文文案全部经此辅助函数内联在配置模型中（条目数少，
+    单文件自包含便于维护）。若宿主未来收紧校验要求 locales_path，
+    再迁至 ``locales/en.json``。
+    """
+    entry: Dict[str, str] = {"label": en_label}
+    if en_hint:
+        entry["hint"] = en_hint
+    return {"i18n": {"en": entry}}
 
 # 对应 maiBot Context Item 载荷的 schema 版本键（与 Host 传入一致，回传时保留原值）
 # 该值来自 src/llm_models/payload_content/context_item.py 的 CONTEXT_ITEM_SCHEMA_VERSION，
@@ -46,6 +61,9 @@ class PluginSectionConfig(PluginConfigBase):
     __ui_label__ = "插件"
     __ui_icon__ = "package"
     __ui_order__ = 0
+    __ui_i18n__: ClassVar[Dict[str, Dict[str, str]]] = {
+        "en": {"title": "Plugin", "description": "Master switch and config version."}
+    }
 
     enabled: bool = Field(
         default=True,
@@ -53,6 +71,7 @@ class PluginSectionConfig(PluginConfigBase):
         json_schema_extra={
             "label": "启用插件",
             "hint": "插件总开关",
+            **_ui_i18n("Enable plugin", "Master switch; when off, nothing is filtered."),
         },
     )
     config_version: str = Field(
@@ -63,6 +82,7 @@ class PluginSectionConfig(PluginConfigBase):
             "hidden": True,
             "label": "配置版本",
             "hint": "配置版本，勿改",
+            **_ui_i18n("Config version", "Keep in sync with the plugin version; do not edit."),
         },
     )
 
@@ -73,6 +93,9 @@ class FilterSectionConfig(PluginConfigBase):
     __ui_label__ = "过滤设置"
     __ui_icon__ = "filter_alt"
     __ui_order__ = 1
+    __ui_i18n__: ClassVar[Dict[str, Dict[str, str]]] = {
+        "en": {"title": "Filter", "description": "What to strip from planner requests."}
+    }
 
     strip_assistant_messages: bool = Field(
         default=True,
@@ -80,6 +103,10 @@ class FilterSectionConfig(PluginConfigBase):
         json_schema_extra={
             "label": "过滤 assistant 纯文本消息",
             "hint": "过滤助手纯文本消息",
+            **_ui_i18n(
+                "Strip assistant text messages",
+                "Remove plain-text assistant messages (temporary request only; history untouched).",
+            ),
         },
     )
     strip_reasoning_messages: bool = Field(
@@ -88,6 +115,10 @@ class FilterSectionConfig(PluginConfigBase):
         json_schema_extra={
             "label": "过滤推理内容",
             "hint": "也过滤推理内容",
+            **_ui_i18n(
+                "Strip reasoning content",
+                "Also remove ReasoningItem entries (assistant thinking text; off by default).",
+            ),
         },
     )
 
@@ -131,7 +162,8 @@ class CateyeFilterAssistantPlugin(MaiBotPlugin):
 
             modified = dict(kwargs)
             modified["items"] = result["items"]
-            self.ctx.logger.info(
+            # 活跃 bot 下几乎每次 planner 请求都会命中，降为 debug 避免刷屏（仍只记条数，不记内容）
+            self.ctx.logger.debug(
                 "已过滤 %d 条 assistant 消息（保留 system/user/tool，仅本次请求，不回写历史）",
                 result["removed"],
             )
@@ -157,11 +189,20 @@ class CateyeFilterAssistantPlugin(MaiBotPlugin):
 
     async def on_load(self) -> None:
         self._check_config_version()
-        self.ctx.logger.info(
-            "不要只说不干：已加载（过滤 assistant 纯文本=%s，过滤推理内容=%s）",
-            bool(self.config.filter.strip_assistant_messages),
-            bool(self.config.filter.strip_reasoning_messages),
-        )
+        if not self.config.plugin.enabled:
+            # 禁用态：明确告知功能未生效，避免用户误以为过滤在运行
+            self.ctx.logger.info(
+                "不要只说不干：已加载（当前为禁用状态，不会过滤任何请求；"
+                "过滤配置：assistant 纯文本=%s，推理内容=%s）",
+                bool(self.config.filter.strip_assistant_messages),
+                bool(self.config.filter.strip_reasoning_messages),
+            )
+        else:
+            self.ctx.logger.info(
+                "不要只说不干：已加载（过滤 assistant 纯文本=%s，过滤推理内容=%s）",
+                bool(self.config.filter.strip_assistant_messages),
+                bool(self.config.filter.strip_reasoning_messages),
+            )
 
     async def on_unload(self) -> None:
         self.ctx.logger.info("不要只说不干：已卸载")

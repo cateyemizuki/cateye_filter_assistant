@@ -89,14 +89,17 @@ def strip_assistant_items(
     items: Sequence[Any],
     *,
     strip_assistant_messages: bool = True,
-    strip_reasoning_messages: bool = True,
+    strip_reasoning_messages: bool = False,
 ) -> Dict[str, Any]:
     """过滤掉 items 中的 assistant 纯文本消息与推理内容。
 
     参数：
         items: 即将发送给 LLM 的消息 / Context Item 列表。
         strip_assistant_messages: 是否过滤纯文本 assistant 消息（默认 True）。
-        strip_reasoning_messages: 是否过滤推理内容 ReasoningItem（默认 True）。
+        strip_reasoning_messages: 是否过滤推理内容 ReasoningItem（默认 False）。
+
+    说明：两个开关的默认值与产品配置默认值（``plugin.py`` [filter] 节）保持一致；
+    实际运行时由调用方按用户配置显式传入，勿依赖此处默认值。
 
     返回：
         ``{"items": [...], "removed": int}`` — 过滤后的列表与被移除的条数。

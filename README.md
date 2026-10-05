@@ -22,7 +22,7 @@
 2. 重启 MaiBot，或在 WebUI 插件中心安装。
 3. 插件为标准 SDK 插件（`maibot-plugin-sdk`，由 MaiBot Runner 内置提供），**无第三方依赖**，无需手动安装任何包。
 
-> 兼容：`host_application` `1.0.0 ~ 1.99.99`，`sdk` `2.0.0 ~ 2.99.99`（Manifest v2）。
+> 兼容：`host_application` `1.0.0 ~ 1.99.99`（含 1.2.x 与 1.3.0），`sdk` `2.8.1 ~ 2.99.99`（Manifest v2）。
 
 ## 配置
 
@@ -31,7 +31,7 @@
 ```toml
 [plugin]                     # 插件总开关与版本号（独立一项分类）
 enabled = true               # 是否启用插件（关闭后不过滤任何请求）
-config_version = "1.0.1"     # 配置版本（与插件版本同步，UI 中隐藏）
+config_version = "1.0.4"     # 配置版本（与插件版本同步，UI 中隐藏）
 
 [filter]                     # 过滤设置
 strip_assistant_messages = true   # 过滤纯文本 assistant 消息（默认开）
@@ -45,7 +45,7 @@ strip_reasoning_messages = false  # 同时过滤推理内容 ReasoningItem（默
 | `plugin.enabled` | 是否启用插件（默认开）。关闭后不过滤任何请求 |
 | `plugin.config_version` | 配置版本（与插件版本同步，UI 中隐藏） |
 | `filter.strip_assistant_messages` | 是否过滤纯文本 assistant 消息（默认开）。这些消息可能包含「决策：保持安静，不回复、不调用工具」等负面示范，会干扰 DeepSeek V4 系列模型的工具调用判断 |
-| `filter.strip_reasoning_messages` | 是否同时过滤推理内容 `ReasoningItem`（assistant 思考文本，默认关） |
+| `filter.strip_reasoning_messages` | 是否同时过滤推理内容 `ReasoningItem`（assistant 思考文本，默认关）。**注意**：部分提供方（如 OpenAI Responses API 系）要求后续轮次回传 reasoning 项，开启后若上游报 reasoning 相关错误请关闭此开关 |
 
 > 如果使用对 Assistant 消息兼容性较好的模型（如 GPT-4、Claude）且不希望过滤上下文，可在 WebUI 关闭 `strip_assistant_messages`（`strip_reasoning_messages` 默认已关闭）。
 
@@ -72,9 +72,12 @@ Planner 构造请求体（items: Context Item 快照列表）
 
 ```
 [INFO] 不要只说不干：已加载（过滤 assistant 纯文本=True，过滤推理内容=False）
-[INFO] 已过滤 8 条 assistant 消息（保留 system/user/tool，仅本次请求，不回写历史）
+[DEBUG] 已过滤 8 条 assistant 消息（保留 system/user/tool，仅本次请求，不回写历史）
+[INFO] 不要只说不干：已加载（当前为禁用状态，不会过滤任何请求；过滤配置：assistant 纯文本=True，过滤推理内容=False）
 [INFO] 不要只说不干：配置已更新（过滤 assistant 纯文本=False，过滤推理内容=False）
 ```
+
+> 每次成功过滤的日志为 `DEBUG` 级别（避免活跃 bot 下刷屏），需要查看时请调高日志级别。
 
 ## 常见问题
 
@@ -82,12 +85,16 @@ Planner 构造请求体（items: Context Item 快照列表）
 - **为什么我的模型不是 DeepSeek V4 也用不上？** 本插件默认开启过滤。若你的模型（如 GPT-4、Claude）依赖 Assistant 消息上下文，可在 WebUI 关闭 `filter.strip_assistant_messages`（`strip_reasoning_messages` 默认已关闭），插件即不再改写任何请求。
 - **过滤会不会影响回复质量？** 只影响「纯文本 assistant 分析」与「推理内容」，不影响用户消息、系统提示、工具调用与工具结果。工具调用段的保留保证 tool 结果仍能被模型正确看到。
 - **会不会回写聊天历史？** 不会。仅改写本次临时 LLM 请求体，聊天历史保持原样。
+- **开启 `strip_reasoning_messages` 后上游报 reasoning 相关错误？** 部分提供方（如 OpenAI Responses API 系）要求在后续轮次回传 reasoning 项，被过滤后会触发上游 API 报错。请关闭该开关（默认即为关闭）；若上游报错但确需过滤，请更换不要求回传 reasoning 的提供方。
 
 ## 版本历史
 
 | 版本 | 变更 |
 |------|------|
-| 1.0.1 | `plugin_type` 改为 `extension`；description 明确为 DeepSeek V4 flash；新增 `test/` 单元测试 |
+| 1.0.4 | 维护版：核心函数 `strip_assistant_items` 签名默认值与产品配置默认对齐（`strip_reasoning_messages` 默认 `False`）；成功过滤日志降为 `DEBUG`；禁用态 `on_load` 措辞改准确；README 补充 `strip_reasoning_messages` 在要求回传 reasoning 的提供方（OpenAI Responses 系）上的上游报错提示。过滤行为不变 |
+| 1.0.3 | 1.3.0 兼容声明修正：`sdk.min_version` 修正为 `2.8.1`；配置模型补全 WebUI 英文翻译（字段 `i18n` 与分组 `__ui_i18n__`），manifest `supported_locales` 增加 `en`；功能与过滤行为不变，仍兼容 1.2.x |
+| 1.0.2 | 为全部配置项补充/完善了用户友好的中文注释与说明（悬停提示），完善配置节说明 |
+| 1.0.1 | `plugin_type` 改为 `extension`；description 明确为 DeepSeek V4 flash |
 | 1.0.0 | 初始版本：`maisaka.planner.before_request` Hook 过滤 assistant 纯文本消息与推理内容；配置开关 `strip_assistant_messages` / `strip_reasoning_messages` |
 
 ## 文件结构
